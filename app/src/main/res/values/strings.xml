@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Lecture Track</string>
+    <string name="heart_rate_text">Heart Rate:</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="consent">CONSENT</string>
+    <string name="staff_student_number">Staff/Student number</string>
+    <string name="name">Name</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="log_in">LOG IN</string>
+    <string name="log_out">LOG OUT</string>
+    <string name="register">REGISTER</string>
+    <string name="track">TRACK</string>
+    <string name="email_address">Staff/Student email</string>
+
+    <string name="log_in_instructions">Log In:</string>
+    <string name="register_button_instruction">Not registered yet?</string>
+
+    <string name="register_instructions">Please register below:</string>
+    <string name="registered_signed_in">You are currently signed in as:</string>
+
+    <string name="logged_in">Logged in as: </string>
+
+    <string name="logged_out">You are not currently signed in. Please sign in to track HR.</string>
+
+    <string-array name="user_type">
+        <item>Select user type</item>
+        <item>Student</item>
+        <item>Staff</item>
+    </string-array>
+</resources>

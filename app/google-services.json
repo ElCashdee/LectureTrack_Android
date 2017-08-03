@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "409097222596",
+    "firebase_url": "https://lecture-track.firebaseio.com",
+    "project_id": "lecture-track",
+    "storage_bucket": "lecture-track.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:409097222596:android:7e7c307574cbef7c",
+        "android_client_info": {
+          "package_name": "com.example.liamc.lecturetrack"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "409097222596-u98nocsn1m2sctn1ne2o2o58ue3orbfr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.liamc.lecturetrack",
+            "certificate_hash": "1828842b9e9bdb67baea1160e4bde814c987604a"
+          }
+        },
+        {
+          "client_id": "409097222596-f8hu85mdtjgr2l4pn644sl3bu5bimrt0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkQgnufrzDK4xdAenvQ0na6t5yAYq4Cf4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "409097222596-f8hu85mdtjgr2l4pn644sl3bu5bimrt0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
