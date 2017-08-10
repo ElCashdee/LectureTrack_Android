@@ -1,5 +1,7 @@
 package com.example.liamc.lecturetrack;
 
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -10,6 +12,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -40,18 +43,28 @@ import java.lang.ref.WeakReference;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    // BandClient to access MicrosoftBand
+    /**
+     * BandClient that will be used to manage connection to
+     * Microsoft Band 2
+     */
     private BandClient client = null;
-    // BluetoothAdapter object to manage bluetooth of device.
+
+    /**
+     * Bluetooth Adapter used to manage Bluetooth on Android device.
+     * Will be used to check Bluetooth status of device and enable it for syncing operations.
+     * REQUEST_ENABLE_BT is passed when enabling Bluetooth.
+     */
     private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private final int REQUEST_ENABLE_BT = 1;
 
-    // constant Strings used by FirebaseDatabase ref to access email and studentNumber nodes
-    private final String EMAIL_NODE = "emailAddress";
-    private final String STUDENT_NUMBER_NODE = "studentNumber";
+
+
     // TAG string to be used in Log entries in event of errors and other events.
     private static final String TAG = "MainActivity";
 
+    /**
+     * Student object that will be instantiated with values of current user if/when user logs in.
+     */
     private Student currentUserStudent;
 
     // Button and TextView objects uss to reference views in activity_main.xml
@@ -59,11 +72,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView heartRateFigure, loggedInState, heartRateText;
 
     // FirebaseAuth to get current user
-    FirebaseAuth mFireAuth = FirebaseAuth.getInstance();
-    FirebaseUser currentUser;
+    private FirebaseAuth mFireAuth = FirebaseAuth.getInstance();
+    private FirebaseUser currentUser;
+
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mToggle;
 
 
-    // [[FIREBASE DATABASE REFERENCES]]
+    /**
+     * [[FIREBASE DATABASE REFERENCES]]
+     */
+
     // Set up Firebase DB reference. Called root reference as it returns ref to root of JSON reference tree
     private DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
     // Reference to student node in Firebase Database.
@@ -73,12 +92,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Will be used to retrieve name and student number to send along with synced HR data.
     private DatabaseReference mCurrentUserRef;
 
-    // reference used to insert student HR data in DB.
+    // DB ref used to nest to node used for HR inserts in event of tracking.
     private DatabaseReference mHeartRateRef = mRootRef.child("studentHeartRate");
 
-    DatabaseReference mHeartRateEventRef;
+    /* Db ref that will be initialised in onClick of startButton, will insert current user data
+     * as new entry. OnHeartRateEventListener will then update HR figure in this node.
+     */
+    private DatabaseReference mHeartRateEventRef;
 
-    // [[END OF FIREBASE DATABASE REFERENCES]]
+    // Constant Strings used by FirebaseDatabase ref to access email and studentNumber nodes
+    private final String EMAIL_NODE = "emailAddress";
+    private final String STUDENT_NUMBER_NODE = "studentNumber";
+
+    /**
+     * [[END OF FIREBASE DATABASE REFERENCES]]
+     */
 
     // create WeakReference Object to be used by HeartRateConsentTask.
     final WeakReference<Activity> reference = new WeakReference<Activity>(this);
@@ -90,13 +118,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 appendToUI(String.format("%d", event.getHeartRate()));
 
                 // create new child reference in heartRateRef with UID of currentUser
-
                 mHeartRateEventRef.child("heartRate").setValue(String.valueOf(event.getHeartRate()));
 
             }
 
         }
     };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,10 +142,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loggedInState = (TextView) findViewById(R.id.logged_in_state_text);
         heartRateText = (TextView) findViewById(R.id.heart_rate_text_view);
 
+        // instantiate DrawerLayout.
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
+
+        mDrawerLayout.addDrawerListener(mToggle);
+        mToggle.syncState();
+
+        try {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException ex) {
+            Log.e(TAG, "Error enabling hamburger icon for navigation drawer", ex);
+            Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
+        }
+
         // check device has Bluetooth Enabled
         checkBluetooth();
 
     } // end of onCreate()
+
+    /**
+     * Method enables navigation drawer to move when hamburger icon is pressed.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (mToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
      * onStart method calls super onStart.
@@ -163,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * TODO javadoc for onDestroy
+     * OnDestroy will unregister HeartRateEventListener.
      */
     @Override
     protected void onDestroy() {
@@ -178,7 +236,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * TODO javadoc for onResume
+     * onResume method calls super class onResume and checks Bluetooth status to ensure it
+     * is enabled.
      */
     @Override
     protected void onResume() {
@@ -244,6 +303,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } // end of doInBackground method
     } // end of HeartRateConsentTask
 
+    /**
+     * Task used to access HR data from Microsoft Band.
+     * Will check that BandClient is not void and user has granted permission to track HR.
+     * If granted, will register HeartRateEventListener which will perform operations.
+     * Handles all BandExceptions that may occur and appends these to UI.
+     */
     private class HeartRateSubscriptionTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
@@ -401,7 +466,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     /**
-     * TODO javadoc for onclick method.
+     * onClick method will execute when any view in activity is clicked.
+     * Switches on ID of clicked view and executes accordingly.
      * @param view View that was clicked
      */
     @Override
@@ -463,8 +529,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
-
-
-
 
 }
